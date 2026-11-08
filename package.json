@@ -4,6 +4,7 @@
   "description": "Constraint-aware 2D/3D Farm Planner, Agronomic AI, and Closed-loop ESP32 IoT Irrigation Platform",
   "main": "index.html",
   "scripts": {
+    "build": "node -e \"console.log('AgriVision build complete')\"",
     "start": "npx serve -p 8080 .",
     "dev": "npx serve -p 8080 ."
   },

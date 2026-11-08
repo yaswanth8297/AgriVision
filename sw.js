@@ -1,5 +1,5 @@
 // AgriVision PWA Service Worker - Offline Cache Manager
-const CACHE_NAME = 'agrivision-v1.4.0';
+const CACHE_NAME = 'agrivision-v1.4.3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -48,7 +48,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log('[ServiceWorker] Removing old cache', key);
+            console.log('[ServiceWorker] Purging stale cache:', key);
             return caches.delete(key);
           }
         })
@@ -58,12 +58,36 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Bypass cache for dynamic API routes
+  // 1. Always bypass cache for dynamic API routes
   if (event.request.url.includes('/api/')) {
     event.respondWith(fetch(event.request));
     return;
   }
 
+  // 2. Network-First strategy for HTML, CSS, and JS so deployments reflect immediately
+  const isCodeAsset = event.request.mode === 'navigate' ||
+                      event.request.url.includes('.html') ||
+                      event.request.url.includes('.css') ||
+                      event.request.url.includes('.js');
+
+  if (isCodeAsset) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // 3. Cache-First with Network fallback for static images, models, and icons
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -78,10 +102,6 @@ self.addEventListener('fetch', (event) => {
           cache.put(event.request, responseToCache);
         });
         return networkResponse;
-      }).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
       });
     })
   );
