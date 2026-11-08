@@ -1,0 +1,23 @@
+{
+  "name": "AgriVision – Smart Farm Planner & IoT",
+  "short_name": "AgriVision",
+  "description": "Constraint-aware 2D/3D Farm Planner, Agronomic AI, and Closed-loop ESP32 IoT Irrigation Platform",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#14261c",
+  "theme_color": "#1f7a3d",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AgriVision – Mobile Farm Planner & IoT</title>
+  
+  <meta name="description" content="Constraint-aware 2D/3D farm planning, agronomic AI, and closed-loop ESP32 IoT irrigation platform in fixed 9:16 mobile ratio">
+  <meta name="theme-color" content="#0d281a">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Standalone Local Three.js Libraries -->
+  <script src="libs/three.min.js"></script>
+  <script src="libs/OrbitControls.js"></script>
+</head>
+<body>
+
+  <!-- 9:16 Smartphone Frame Enclosure -->
+  <div class="mobile-viewport-shell">
+    <div class="smartphone-frame">
+      
+      <!-- Top Mobile Phone Status Bar -->
+      <div class="mobile-status-bar">
+        <span id="mobile-live-clock">19:45</span>
+        <div class="dynamic-island-notch"></div>
+        <div class="status-icons">
+          <span>5G</span>
+          <span>📶</span>
+          <span>🔋 96%</span>
+        </div>
+      </div>
+
+      <!-- Compact Mobile App Header -->
+      <header class="app-header">
+        <div class="brand-wrapper">
+          <div class="brand-logo">🌱</div>
+          <div class="brand-info">
+            <h1 data-i18n="brandName">AgriVision</h1>
+            <div class="tagline" data-i18n="brandTag">Smart 2D/3D Farm Planning & IoT</div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Voice Audio Button -->
+          <button class="btn-icon" onclick="speakFarmStatusOverview()" title="Play Voice Audio">
+            🔊
+          </button>
+
+          <!-- Trilingual Language Selector (English, Telugu, Hindi) -->
+          <select id="lang-select" class="lang-select-box" title="Language">
+            <option value="en">EN</option>
+            <option value="te">తెలుగు</option>
+            <option value="hi">हिन्दी</option>
+          </select>
+
+          <!-- User Account / Switch Login Button -->
+          <button id="header-user-btn" class="btn-icon" onclick="showAuthModal('login')" title="Account / Switch User">
+            <span>👨‍🌾</span>
+          </button>
+
+          <!-- Settings Button -->
+          <button id="header-settings-btn" class="btn-icon" onclick="switchTab('settings')" title="Settings">
+            <span>⚙️</span>
+          </button>
+
+          <!-- Theme Toggle -->
+          <button id="theme-toggle-btn" class="btn-icon" title="Toggle Theme">
+            ☀️
+          </button>
+        </div>
+      </header>
+
+      <!-- Sub-Bar: Parcel Selector & Soil Moisture Badge -->
+      <div class="sub-bar">
+        <div class="parcel-selector-group">
+          <strong data-i18n="parcelLabel">Plot:</strong>
+          <select id="parcel-select" class="select-clean"></select>
+        </div>
+
+        <div class="telemetry-badges">
+          <span id="sub-moist-badge" class="t-badge good">28% Moisture</span>
+          <span id="sub-pump-badge" class="t-badge good">💧 Pump: ON</span>
+        </div>
+      </div>
+
+      <!-- Main Scrollable Screen Body -->
+      <main class="mobile-screen-body">
+
+        <!-- ==================== MODULE 1: FARM DESIGNER (2D / 3D) ==================== -->
+        <section id="tab-planner" class="tab-pane active">
+          
+          <!-- Mobile Segmented View Selector -->
+          <div class="view-segment-control">
+            <button id="seg-btn-2d" class="view-segment-btn active" onclick="switchDesignerMode('2d')">
+              <span>🗺️</span> 2D Blueprint
+            </button>
+            <button id="seg-btn-3d" class="view-segment-btn" onclick="switchDesignerMode('3d')">
+              <span>🌐</span> 3D WebGL
+            </button>
+          </div>
+
+          <!-- 2D Canvas Viewport Box -->
+          <div id="viewport-2d-box" class="viewport-card">
+            <div class="canvas-viewport-wrapper">
+              <div class="compass-indicator">
+                <div class="compass-arrow"></div>
+                <span>N</span>
+              </div>
+              <svg id="svg-canvas"></svg>
+              <div id="collision-alert" class="collision-alert-banner">
+                ⚠️ Overlap / Breach Detected!
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Three.js WebGL Viewport Box -->
+          <div id="viewport-3d-box" class="viewport-card" style="display: none;">
+            <div class="canvas-viewport-wrapper">
+              <div id="three-container"></div>
+            </div>
+          </div>
+
+          <!-- Mobile Toolbar -->
+          <div class="planner-toolbar">
+            <button class="btn btn-primary" style="width: 100%;" onclick="autoGenerateBlueprint()">
+              <span>✨</span> <span data-i18n="generateBlueprint">Auto-Generate Blueprint</span>
+            </button>
+            
+            <div class="toolbar-group" style="justify-content: space-between;">
+              <button class="btn btn-secondary btn-sm" onclick="addNewEntity('crop')">
+                <span data-i18n="addCropBed">+ Crop</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="addNewEntity('orchard')">
+                <span data-i18n="addOrchard">+ Orchard</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="addNewEntity('greenhouse')">
+                <span data-i18n="addGreenhouse">+ Polyhouse</span>
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="addNewEntity('pond')">
+                <span data-i18n="addPond">+ Pond</span>
+              </button>
+            </div>
+
+            <button class="btn btn-secondary btn-sm" style="width: 100%;" onclick="exportBlueprintImage()">
+              <span>💾</span> <span data-i18n="exportBlueprint">Export Blueprint Image</span>
+            </button>
+          </div>
+
+          <!-- Land Utilization Bar & Metrics -->
+          <div class="card">
+            <div class="card-title">
+              <span>📊</span> Land Utilization
+            </div>
+            <div id="utilization-bar" class="land-utilization-bar"></div>
+            
+            <div class="legend-grid">
+              <div class="legend-item">
+                <div class="legend-swatch" style="background: #2e7d32;"></div>
+                <span>Crops</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-swatch" style="background: #1b4d2e;"></div>
+                <span>Orchards</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-swatch" style="background: #00838f;"></div>
+                <span>Polyhouse</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-swatch" style="background: #0277bd;"></div>
+                <span>Retention Pond</span>
+              </div>
+            </div>
+
+            <div style="font-size: 0.8rem; line-height: 1.6; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+              <div>Area: <strong id="stat-total-area">8000 m² (1.98 Ac)</strong> | Perimeter: <strong id="stat-perimeter">360 m</strong></div>
+              <div>Road Buffer: <strong style="color: #27ae60;">3m 100% Reserved</strong></div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== MODULE 2: METHOD OPTIMIZER ==================== -->
+        <section id="tab-optimizer" class="tab-pane">
+          <div class="card">
+            <div class="card-title">
+              <span>⚖️</span> <span data-i18n="tabOptimizer">Method Optimizer</span>
+            </div>
+            <div class="form-group" style="margin-bottom: 10px;">
+              <label class="form-label">Investment Budget (₹):</label>
+              <input type="number" id="opt-custom-budget" class="form-control" value="200000" step="10000" oninput="updateOptimizerUI()">
+            </div>
+          </div>
+
+          <div id="optimizer-cards-container" class="comparison-grid"></div>
+        </section>
+
+        <!-- ==================== MODULE 3: CROP & FERTILIZER ADVISOR ==================== -->
+        <section id="tab-advisor" class="tab-pane">
+          <div class="card">
+            <div class="card-title">
+              <span>🌾</span> <span data-i18n="tabAdvisor">Crop & Fertilizer</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label" data-i18n="seasonLabel">Season:</label>
+                <select id="adv-season" class="form-control" onchange="updateAdvisorUI()">
+                  <option value="kharif">Kharif (Monsoon: Jun–Oct)</option>
+                  <option value="rabi">Rabi (Winter: Nov–Mar)</option>
+                  <option value="zaid">Zaid (Summer: Mar–Jun)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="soilLabel">Soil Classification:</label>
+                <select id="adv-soil" class="form-control" onchange="updateAdvisorUI()">
+                  <option value="red_loam">Red Sandy Loam</option>
+                  <option value="black_clay">Black Cotton Clay</option>
+                  <option value="alluvial">Coastal Alluvial</option>
+                  <option value="laterite">Laterite Soil</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" data-i18n="waterLabel">Water Source:</label>
+                <select id="adv-water" class="form-control" onchange="updateAdvisorUI()">
+                  <option value="borewell">Borewell (> 2400 L/h)</option>
+                  <option value="limited_borewell">Limited Borewell (< 1800 L/h)</option>
+                  <option value="irrigated">Canal / Drip Irrigation</option>
+                  <option value="rainfed">Rainfed Dryland</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="phLabel">Soil pH:</span> <strong id="adv-ph-val" style="color: var(--primary);">6.8</strong></label>
+                <input type="range" id="adv-ph" min="5.0" max="8.5" step="0.1" value="6.8" oninput="updateAdvisorUI()">
+              </div>
+            </div>
+          </div>
+
+          <div id="crop-recommendation-results">
+            <!-- Subtab Navigation -->
+            <div style="display: flex; gap: 8px; margin-bottom: 14px; background: var(--bg-card); padding: 4px; border-radius: 10px; border: 1px solid var(--border-color);">
+              <button id="adv-subtab-crops" onclick="switchAdvisorSubTab('crops')" 
+                style="flex: 1; padding: 10px 12px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; background: var(--primary); color: #ffffff;">
+                🌾 Recommended Crops
+              </button>
+              <button id="adv-subtab-ferts" onclick="switchAdvisorSubTab('fertilizers')" 
+                style="flex: 1; padding: 10px 12px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-secondary);">
+                🧪 Real-Life Fertilizers
+              </button>
+            </div>
+
+            <!-- Crop 1: Guntur Hope Chili -->
+            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+              <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
+                <img src="images/crops/chili.jpg" alt="Guntur Hope Chili" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">95%</span>
+                  <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Guntur Hope Chili (Mirapa)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 150–180 Days &nbsp;|&nbsp; ⚖️ 22–28 Quintals/Acre</div>
+                </div>
+              </div>
+              <div style="padding: 14px 16px;">
+                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Organic FYM / Compost" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:40:30</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Organic FYM / Compost</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">4 tons FYM + 200kg Neem Cake</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Jeevamrutham Liquid" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 40:0:20</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Jeevamrutham Liquid</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Jeevamrutham 200L foliar drench</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="NPK 19:19:19 Complex" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:20:30</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 NPK 19:19:19 Complex</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Waste Decomposer + 19:19:19 micro-spray</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Crop 2: Taiwan Pink Guava -->
+            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+              <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
+                <img src="images/crops/guava.jpg" alt="Taiwan Pink Guava" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">92%</span>
+                  <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Taiwan Pink Guava (High-Density)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ Perennial (First harvest at 18 months) &nbsp;|&nbsp; ⚖️ 12–15 Tons/Acre</div>
+                </div>
+              </div>
+              <div style="padding: 14px 16px;">
+                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Vermicompost + Trichoderma" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 25:35:25</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Vermicompost + Trichoderma</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">5 tons Vermicompost + 500g Trichoderma</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Panchagavya / Bio-Wash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:15:20</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Panchagavya / Bio-Wash</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Panchagavya 3% foliar spray</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="Sulphate of Potash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:25:40</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Sulphate of Potash (KMB)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Potash mobilizing bacteria (KMB)</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Crop 3: Finger Millet (Ragi) -->
+            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+              <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
+                <img src="images/crops/millet.jpg" alt="Finger Millet (Ragi)" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">88%</span>
+                  <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Finger Millet (Ragi / Chodi)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 100–115 Days &nbsp;|&nbsp; ⚖️ 14–18 Quintals/Acre</div>
+                </div>
+              </div>
+              <div style="padding: 14px 16px;">
+                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Enriched Compost" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:20:15</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Enriched Compost</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">2.5 tons compost + Azospirillum seed treatment</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/neem_cake.jpg" alt="Neem Kernel Extract" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:0:0</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Neem Kernel Extract (NSKE)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Neem seed kernel extract (NSKE 5%)</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Organic Wood Ash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 10:10:15</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Organic Wood Ash & Potash</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Wood ash 50kg/acre for organic potassium</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Crop 4: Banganapalli Mango -->
+            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+              <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
+                <img src="images/crops/mango.jpg" alt="Banganapalli Mango" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">85%</span>
+                  <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Banganapalli Mango Orchard</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ Perennial (Year 3 onward) &nbsp;|&nbsp; ⚖️ 6–9 Tons/Acre</div>
+                </div>
+              </div>
+              <div style="padding: 14px 16px;">
+                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Manure + Bone Meal Pit Blend" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 40:50:40</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Manure + Bone Meal Pit Blend</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">10kg FYM per pit + 1kg Bone meal</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Zinc-Borax & Jeevamrutham" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:20:30</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Zinc-Borax & Jeevamrutham</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Zinc Sulphate 0.5% + Borax 0.2% spray</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="Fruit Set Potash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:40:60</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Fruit Set Potash & Paclobutrazol</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Cultar paclobutrazol (if recommended by KVK)</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Crop 5: BPT 5204 Paddy -->
+            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+              <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
+                <img src="images/crops/paddy.jpg" alt="BPT 5204 Paddy" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                  <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">82%</span>
+                  <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
+                </div>
+                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">BPT 5204 Paddy (Samba Mahsuri)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 140–150 Days &nbsp;|&nbsp; ⚖️ 28–34 Bags/Acre</div>
+                </div>
+              </div>
+              <div style="padding: 14px 16px;">
+                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/neem_cake.jpg" alt="Green Manure + Neem Cake" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:40:25</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Green Manure + Neem Cake</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Green manure (Dhaincha/Sunn hemp incorporated)</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Azolla Bio-Fertilizer" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 40:0:15</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Azolla Bio-Fertilizer & Jeevamrit</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Azolla bio-fertilizer layer</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="Potassium Nitrate" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                      </div>
+                      <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:0:20</span>
+                        </div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Potassium Nitrate 13-0-45</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Potassium Nitrate 13-0-45 foliar spray</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==================== MODULE 4: LEAF DISEASE SCANNER ==================== -->
+        <section id="tab-pathology" class="tab-pane">
+          <div class="card">
+            <div class="card-title">
+              <span>🔬</span> <span data-i18n="tabPathology">Disease Scanner</span>
+            </div>
+            
+            <div class="dropzone-box" onclick="document.getElementById('leaf-file-input').click()">
+              <input type="file" id="leaf-file-input" accept="image/*" style="display: none;" onchange="handleFileUpload(this)">
+              <div id="dropzone-placeholder">
+                <span style="font-size: 2.4rem;">📸</span>
+                <div style="font-weight: 700; font-size: 0.88rem; margin-top: 4px;">Tap to Take Photo or Upload</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Tomato, Chili, Cotton, Rice</div>
+              </div>
+              <img id="leaf-preview-img" class="leaf-preview-img" style="display: none;" alt="Leaf preview">
+            </div>
+
+            <div style="margin-top: 10px;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px;">
+                ⚡ Field Test Presets:
+              </div>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="runPathologyDiagnosis(0)">🍅 Tomato Blight</button>
+                <button class="btn btn-secondary btn-sm" onclick="runPathologyDiagnosis(1)">🌿 Cotton Curl</button>
+                <button class="btn btn-secondary btn-sm" onclick="runPathologyDiagnosis(2)">🌶️ Chili Rot</button>
+                <button class="btn btn-secondary btn-sm" onclick="runPathologyDiagnosis(3)">✅ Healthy</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagnostic Diagnosis Result Card -->
+          <div class="card">
+            <div id="pathology-loader" style="display: none; text-align: center; padding: 24px;">
+              <div style="font-size: 1.8rem; animation: pulse 1s infinite;">🧠</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-top: 6px;">MobileNetV2 Neural Diagnostic...</div>
+            </div>
+
+            <div id="pathology-result-card">
+              <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+                <h3 id="diag-disease-name" style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary);">
+                  🍅 Tomato Early Blight
+                </h3>
+                <span id="diag-confidence-pct" style="font-size: 1.1rem; font-weight: 800; color: #27ae60;">
+                  94.2%
+                </span>
+              </div>
+
+              <div style="margin-top: 10px; font-size: 0.8rem;">
+                <strong>Cause:</strong> <span id="diag-cause">Alternaria solani fungal pathogen.</span>
+              </div>
+
+              <div class="remedy-box">
+                <strong style="color: var(--primary);">🌿 Organic Remedy:</strong>
+                <p id="diag-org-remedy" style="margin-top: 2px;">Neem oil spray (5ml/L) & Trichoderma soil drench.</p>
+              </div>
+
+              <div class="remedy-box" style="border-left-color: #e67e22;">
+                <strong style="color: #d35400;">🧪 Chemical Remedy:</strong>
+                <p id="diag-chem-remedy" style="margin-top: 2px;">Mancozeb 75 WP @ 2.5g/L foliar spray.</p>
+              </div>
+
+              <div style="margin-top: 10px; padding: 8px; background: var(--warning-light); border-radius: 6px; font-size: 0.72rem; color: #784212;">
+                ⚠️ <strong>Advisory Disclaimer:</strong> Inspect crop in person before applying chemical fungicides.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== MODULE 5: SMART WATER & ELECTRICITY (ESP32) ==================== -->
+        <section id="tab-iot" class="tab-pane">
+          <div class="iot-dashboard-grid">
+            
+            <div class="pump-switch-card">
+              <div>
+                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; color: #a3e4d7;">
+                  ESP32 IoT Node Controller
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; margin: 2px 0;">
+                  3 HP Drip Irrigation Pump
+                </h3>
+                <div id="iot-pump-text" style="font-size: 0.78rem; color: #d1f2eb;">
+                  Auto Hysteresis: Irrigating until 65% soil saturation
+                </div>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                <div id="iot-pump-badge" class="pump-status-badge on">
+                  ACTIVE
+                </div>
+                <div class="toolbar-group">
+                  <button class="btn btn-secondary btn-sm" onclick="setPumpMode('auto')">Auto</button>
+                  <button class="btn btn-primary btn-sm" onclick="setPumpMode('on')">ON</button>
+                  <button class="btn btn-danger btn-sm" onclick="setPumpMode('off')">OFF</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Moisture Gauge Card -->
+            <div class="telemetry-gauge-card">
+              <div id="iot-moist-card-title" style="font-size: 0.8rem; font-weight: 700; color: var(--text-secondary);">
+                Capacitive Soil Moisture (GPIO 34)
+              </div>
+              <div id="iot-moisture-val" class="gauge-value">28%</div>
+              <div id="iot-moist-card-sub" style="font-size: 0.72rem; color: var(--text-muted);">
+                Thresholds: Turn ON &lt; 30% | Turn OFF &ge; 65%
+              </div>
+
+              <div style="margin-top: 10px;">
+                <label id="iot-sim-slider-label" style="font-size: 0.75rem; font-weight: 600;">Simulate Moisture:</label>
+                <input type="range" id="iot-moisture-slider" min="15" max="85" value="28" 
+                       oninput="updateTelemetry(parseFloat(this.value))" style="width: 100%; margin-top: 4px;">
+              </div>
+
+              <button id="iot-run-sim-btn" class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="runMoistureSimulation()">
+                ▶️ Test Full Irrigation Cycle
+              </button>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="telemetry-gauge-card" style="padding: 10px;">
+                <div id="iot-temp-title" style="font-size: 0.75rem; font-weight: 700;">Soil Temp</div>
+                <div id="iot-temp-val" class="gauge-value" style="font-size: 1.5rem; color: #e67e22;">29.4 °C</div>
+              </div>
+              <div class="telemetry-gauge-card" style="padding: 10px;">
+                <div id="iot-hum-title" style="font-size: 0.75rem; font-weight: 700;">Humidity</div>
+                <div id="iot-hum-val" class="gauge-value" style="font-size: 1.5rem; color: #2980b9;">62% RH</div>
+              </div>
+            </div>
+
+            <!-- Energy Consumption -->
+            <div class="card" style="padding: 12px;">
+              <div id="iot-energy-title" class="card-title" style="font-size: 0.9rem;">
+                <span>⚡</span> Energy Tracker
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                <div>Power: <strong id="iot-kwh-val">4.82 kWh</strong></div>
+                <div>Cost: <strong id="iot-energy-cost-val" style="color: var(--primary);">₹25.3</strong></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ==================== MODULE 6: WEATHER & FARM CALENDAR ==================== -->
+        <section id="tab-calendar" class="tab-pane">
+          <div class="card">
+            <div class="card-title">
+              <span>📅</span> <span data-i18n="tabCalendar">Weather & Calendar</span>
+            </div>
+
+            <div id="weather-alert-card" class="advisory-disclaimer" style="margin-bottom: 14px;"></div>
+
+            <h4 id="weather-forecast-head" style="font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px;">
+              5-Day Forecast:
+            </h4>
+            <div id="weather-forecast-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;"></div>
+
+            <h4 id="weather-roadmap-head" style="font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px;">
+              Crop Task Roadmap:
+            </h4>
+            <div id="seasonal-roadmap-timeline"></div>
+          </div>
+        </section>
+
+        <!-- ==================== MODULE 7: SETTINGS & FARMER PROFILE ==================== -->
+        <section id="tab-settings" class="tab-pane">
+          <div id="profile-content-container">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+              
+              <!-- Settings Top Header Banner -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 6px;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                  <span>⚙️</span> <span id="settings-main-heading">Settings & Preferences</span>
+                </h3>
+                <span style="font-size: 0.72rem; background: var(--bg-card); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 12px; font-weight: 700; color: var(--primary);">
+                  🟢 System v1.3.0
+                </span>
+              </div>
+
+              <!-- 1. Account & Active Farmer Session -->
+              <div class="card" style="border-left: 5px solid var(--primary);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="settings-avatar-icon" style="font-size: 2rem;">👨‍🌾</span>
+                    <div>
+                      <div id="settings-farmer-name" style="font-size: 1rem; font-weight: 800; color: var(--text-primary);">Apparao Nimmana</div>
+                      <div id="settings-farmer-email" style="font-size: 0.75rem; color: var(--text-muted);">apparao@agrivision.in</div>
+                    </div>
+                  </div>
+                  <span id="settings-farmer-role" style="background: rgba(46, 204, 113, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; text-transform: uppercase;">
+                    FARMER
+                  </span>
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                  <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="showAuthModal('login')">
+                    🔄 Switch Account
+                  </button>
+                  <button class="btn btn-danger btn-sm" onclick="handleSignOut()">
+                    🚪 Sign Out
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. Language & Visual Preferences -->
+              <div class="card">
+                <div class="card-title">
+                  <span>🌐</span> Language & Display Settings
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Active App Language:</label>
+                  <select id="settings-lang-select" class="form-control" onchange="setLanguage(this.value); if(window.renderProfileUI) renderProfileUI();">
+                    <option value="en" selected>English (Default)</option>
+                    <option value="te">తెలుగు (Telugu)</option>
+                    <option value="hi">हिन्दी (Hindi)</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">App Color Theme:</label>
+                  <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="if(STATE.theme !== 'light') toggleTheme();">
+                      ☀️ Light Theme
+                    </button>
+                    <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="if(STATE.theme !== 'dark') toggleTheme();">
+                      🌙 Dark / Field Mode
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">2D Blueprint Grid Snap:</label>
+                  <select id="settings-grid-snap" class="form-control">
+                    <option value="5" selected>5.0 Meters (Standard CAD)</option>
+                    <option value="1">1.0 Meter (Precision Micro)</option>
+                    <option value="10">10.0 Meters (Orchard Macro)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 3. Farm Land & Irrigation Configuration -->
+              <div class="card">
+                <div class="card-title">
+                  <span>🚜</span> Farm Land & Irrigation Settings
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Default Land Measurement Unit:</label>
+                  <select id="prof-units" class="form-control">
+                    <option value="acres" selected>Acres (ఎకరాలు / एकड़)</option>
+                    <option value="hectares">Hectares (హెక్టార్లు / हेक्टेयर)</option>
+                    <option value="guntas">Guntas (40 guntas = 1 acre)</option>
+                    <option value="cents">Cents (100 cents = 1 acre)</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Primary Irrigation Delivery System:</label>
+                  <select id="prof-irrigation" class="form-control">
+                    <option value="drip" selected>Precision Drip (బిందు సేద్యం / ड्रिप)</option>
+                    <option value="sprinkler">Micro-Sprinkler (తుంపర సేద్యం)</option>
+                    <option value="flood">Controlled Furrow (కాలువ తడులు)</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Borewell Pump Rating (HP):</label>
+                  <input type="text" id="prof-pumphp" class="form-control" value="5.0 HP Submersible">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Borewell Aquifer Depth (Feet):</label>
+                  <input type="number" id="prof-depth" class="form-control" value="280">
+                </div>
+              </div>
+
+              <!-- 4. Smart Irrigation & Pump Thresholds -->
+              <div class="card">
+                <div class="card-title">
+                  <span>💧</span> Smart Pump Automation Thresholds
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Auto-Start Pump Trigger (Soil Moisture &lt; %):</label>
+                  <input type="number" id="settings-pump-on-thresh" class="form-control" value="30" min="15" max="50">
+                  <small style="color: var(--text-muted); font-size: 0.72rem;">Turns irrigation pump ON when soil moisture falls below this limit.</small>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Auto-Stop Pump Trigger (Soil Moisture &gt;= %):</label>
+                  <input type="number" id="settings-pump-off-thresh" class="form-control" value="65" min="50" max="90">
+                  <small style="color: var(--text-muted); font-size: 0.72rem;">Shuts pump OFF to prevent waterlogging and root rot.</small>
+                </div>
+              </div>
+
+              <!-- 5. IoT Hardware & ESP32 Telemetry Calibration -->
+              <div class="card">
+                <div class="card-title">
+                  <span>📡</span> ESP32 Telemetry & Sensor Calibration
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">ESP32 Node IP Address:</label>
+                  <input type="text" id="prof-nodeip" class="form-control" value="192.168.4.1">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Telemetry Frequency (Seconds):</label>
+                  <input type="number" id="prof-sync" class="form-control" value="3" min="1" max="60">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Capacitive Air ADC (Dry 0% Moisture):</label>
+                  <input type="number" id="prof-airadc" class="form-control" value="3200">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Capacitive Water ADC (Wet 100% Moisture):</label>
+                  <input type="number" id="prof-wateradc" class="form-control" value="1450">
+                </div>
+              </div>
+
+              <!-- 6. Farmer Profile & KVK Identification -->
+              <div class="card">
+                <div class="card-title">
+                  <span>👤</span> Farmer Profile & KVK Center
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Full Name:</label>
+                  <input type="text" id="prof-name" class="form-control" value="Apparao Nimmana">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Mobile Number:</label>
+                  <input type="tel" id="prof-phone" class="form-control" value="+91 98480 22338">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">Village / Hamlet:</label>
+                  <input type="text" id="prof-village" class="form-control" value="Anakapalli Rural">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 10px;">
+                  <label class="form-label">District &amp; State:</label>
+                  <input type="text" id="prof-district" class="form-control" value="Visakhapatnam, Andhra Pradesh">
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Assigned KVK Center:</label>
+                  <input type="text" id="prof-kvk" class="form-control" value="KVK Kondempudi, Anakapalli (ANGRAU)">
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="card" style="background: transparent; border: none; padding: 0;">
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-secondary" style="flex: 1;" onclick="exportProfileData()">
+                    💾 Export Farm Data (JSON)
+                  </button>
+                  <button class="btn btn-primary" style="flex: 1;" onclick="saveProfileFormData()">
+                    ✓ Save Settings
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+        <section id="tab-profile" class="tab-pane" style="display: none;"></section>
+
+        <!-- Mandatory Advisory Disclaimer -->
+        <div class="advisory-disclaimer">
+          <span>⚖️</span>
+          <span data-i18n="disclaimer">
+            Advisory Notice: AgriVision layout is for decision support only and not a statutory land survey.
+          </span>
+        </div>
+
+      </main>
+
+      <!-- Floating Voice Mic FAB -->
+      <div class="voice-command-overlay">
+        <button id="voice-mic-fab" class="btn-mic-fab" onclick="toggleVoiceListening()" title="Voice Command">
+          🎙️
+        </button>
+      </div>
+
+      <!-- Toast Mount -->
+      <div id="toast-container" class="toast-container"></div>
+
+      <!-- ==================== AUTHENTICATION MODAL (LOGIN & SIGN UP) ==================== -->
+      <div id="auth-modal-overlay" class="auth-modal-backdrop" style="display: none;">
+        <div class="auth-modal-card">
+          <div class="auth-header-bar">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 1.3rem;">🌱</span>
+              <span style="font-weight: 800; font-size: 1rem;">AgriVision Auth</span>
+            </div>
+            <button class="btn-icon" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="closeAuthModal()">✕</button>
+          </div>
+
+          <!-- Segmented Tabs: Sign In / Create Account -->
+          <div class="auth-tabs-nav">
+            <button id="auth-tab-btn-login" class="auth-tab-btn active" onclick="switchAuthTab('login')">
+              🔑 Sign In
+            </button>
+            <button id="auth-tab-btn-signup" class="auth-tab-btn" onclick="switchAuthTab('signup')">
+              📝 Create Account
+            </button>
+          </div>
+
+          <div class="auth-body-content">
+            
+            <!-- Quick Demo Accounts Autofill Shelf -->
+            <div class="demo-accounts-shelf">
+              <div style="font-size: 0.72rem; font-weight: 800; color: var(--primary); text-transform: uppercase;">
+                ⚡ 1-Tap Auto-Fill Demo Accounts:
+              </div>
+              <div class="demo-pills-row">
+                <button type="button" class="demo-pill-btn" onclick="fillDemoAccount('apparao')">
+                  👨‍🌾 Apparao (2.5 Ac)
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillDemoAccount('lakshmi')">
+                  👩‍🌾 Lakshmi (4 Ha)
+                </button>
+                <button type="button" class="demo-pill-btn" onclick="fillDemoAccount('kvk')">
+                  🔬 Dr. Rao (KVK)
+                </button>
+              </div>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="auth-login-form" onsubmit="handleLoginSubmit(event)">
+              <div class="form-group" style="margin-bottom: 10px;">
+                <label class="form-label">Email or Mobile Number:</label>
+                <input type="text" id="login-email" class="form-control" value="apparao@agrivision.in" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Password:</label>
+                <input type="password" id="login-pass" class="form-control" value="farmer123" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Sign In to Farm Studio
+              </button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="auth-signup-form" style="display: none;" onsubmit="handleSignupSubmit(event)">
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label">Farmer / User Full Name:</label>
+                <input type="text" id="signup-name" class="form-control" placeholder="e.g. Venkata Ramana" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label">Email Address:</label>
+                <input type="email" id="signup-email" class="form-control" placeholder="farmer@agrivision.in" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label">Mobile Number:</label>
+                <input type="tel" id="signup-phone" class="form-control" placeholder="+91 98480 12345" required>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label">Village / Mandal:</label>
+                <input type="text" id="signup-village" class="form-control" placeholder="e.g. Anakapalli Rural">
+              </div>
+
+              <div class="form-group" style="margin-bottom: 8px;">
+                <label class="form-label">Select Account Role:</label>
+                <select id="signup-role" class="form-control">
+                  <option value="farmer">Smallholder Farmer (రైతు / किसान)</option>
+                  <option value="agronomist">KVK Extension Officer / Agronomist</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label">Create Password:</label>
+                <input type="password" id="signup-pass" class="form-control" placeholder="••••••••" required>
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="width: 100%;">
+                Register & Initialize Farm
+              </button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Bottom Navigation Bar (7 Tabs) -->
+      <nav class="mobile-bottom-nav">
+        <button class="mobile-nav-item active" data-tab="planner">
+          <span class="mobile-nav-icon">📐</span>
+          <span class="mobile-nav-label" data-i18n="navPlanner">Plan</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="optimizer">
+          <span class="mobile-nav-icon">⚖️</span>
+          <span class="mobile-nav-label" data-i18n="navOptimizer">Methods</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="advisor">
+          <span class="mobile-nav-icon">🌾</span>
+          <span class="mobile-nav-label" data-i18n="navAdvisor">Crops</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="pathology">
+          <span class="mobile-nav-icon">🔬</span>
+          <span class="mobile-nav-label" data-i18n="navPathology">Scan</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="iot">
+          <span class="mobile-nav-icon">💧</span>
+          <span class="mobile-nav-label" data-i18n="navIot">Water</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="calendar">
+          <span class="mobile-nav-icon">📅</span>
+          <span class="mobile-nav-label" data-i18n="navCalendar">Weather</span>
+        </button>
+        <button class="mobile-nav-item" data-tab="settings">
+          <span class="mobile-nav-icon">⚙️</span>
+          <span class="mobile-nav-label" data-i18n="navSettings">Settings</span>
+        </button>
+      </nav>
+
+    </div>
+  </div>
+
+  <!-- Database & Application Logic Scripts -->
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/planner2d.js"></script>
+  <script src="js/planner3d.js"></script>
+  <script src="js/method_optimizer.js"></script>
+  <script src="js/crop_advisor.js"></script>
+  <script src="js/disease_scanner.js"></script>
+  <script src="js/iot_controller.js"></script>
+  <script src="js/weather_calendar.js"></script>
+  <script src="js/telugu_voice.js"></script>
+  <script src="js/profile.js"></script>
+
+  <!-- Mobile Screen Enhancements & Clock -->
+  <script>
+    // Live Mobile Clock Updater
+    function updateMobileClock() {
+      const clockEl = document.getElementById('mobile-live-clock');
+      if (clockEl) {
+        const d = new Date();
+        const hrs = String(d.getHours()).padStart(2, '0');
+        const mins = String(d.getMinutes()).padStart(2, '0');
+        clockEl.textContent = `${hrs}:${mins}`;
+      }
+    }
+    setInterval(updateMobileClock, 10000);
+    updateMobileClock();
+
+    // Mobile 2D / 3D Segment Switcher
+    function switchDesignerMode(mode) {
+      const v2d = document.getElementById('viewport-2d-box');
+      const v3d = document.getElementById('viewport-3d-box');
+      const btn2d = document.getElementById('seg-btn-2d');
+      const btn3d = document.getElementById('seg-btn-3d');
+      if (mode === '2d') {
+        if (v2d) v2d.style.display = 'block';
+        if (v3d) v3d.style.display = 'none';
+        if (btn2d) btn2d.classList.add('active');
+        if (btn3d) btn3d.classList.remove('active');
+        if (window.render2D) window.render2D();
+      } else {
+        if (v2d) v2d.style.display = 'none';
+        if (v3d) v3d.style.display = 'block';
+        if (btn2d) btn2d.classList.remove('active');
+        if (btn3d) btn3d.classList.add('active');
+        setTimeout(() => {
+          if (window.resize3D) window.resize3D();
+          if (window.render3D) window.render3D();
+        }, 50);
+      }
+    }
+    window.switchDesignerMode = switchDesignerMode;
+
+    // Mobile Bottom Tab Navigation
+    document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.getAttribute('data-tab');
+        if (window.switchTab) window.switchTab(tab);
+      });
+    });
+
+    window.addEventListener('load', async () => {
+      // 1. Initialize Database & Auth
+      if (window.DB) await window.DB.init();
+      if (window.initAuthUI) window.initAuthUI();
+
+      // 2. Initialize Visualizers & Modules
+      if (window.render2D) window.render2D();
+      if (window.initThreeJS) window.initThreeJS();
+      if (window.updateOptimizerUI) window.updateOptimizerUI();
+      if (window.updateAdvisorUI) window.updateAdvisorUI();
+      if (window.renderIotDashboard) window.renderIotDashboard();
+      if (window.renderWeatherAndCalendar) window.renderWeatherAndCalendar();
+      if (window.renderProfileUI) window.renderProfileUI();
+      if (window.initSpeechRecognition) window.initSpeechRecognition();
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "agrivision-platform",
+  "version": "1.4.0",
+  "description": "Constraint-aware 2D/3D Farm Planner, Agronomic AI, and Closed-loop ESP32 IoT Irrigation Platform",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve -p 8080 .",
+    "dev": "npx serve -p 8080 ."
+  },
+  "keywords": [
+    "agrivision",
+    "smart-farming",
+    "iot",
+    "esp32",
+    "threejs",
+    "precision-agriculture"
+  ],
+  "author": "AgriVision Team",
+  "license": "MIT"
+}
