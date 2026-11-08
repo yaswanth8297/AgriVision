@@ -15,3 +15,4 @@ module.exports = (req, res) => {
     logged_at: new Date().toISOString()
   });
 };
+
