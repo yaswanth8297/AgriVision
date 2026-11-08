@@ -83,31 +83,30 @@ body {
   color: var(--text-primary);
   line-height: 1.45;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: stretch;
 }
 
-/* Mobile Viewport Shell (Full-height centering container like Farm-to-Pharmacy) */
+/* Mobile Viewport Shell (Anchored to top so header is NEVER out of sight) */
 .mobile-viewport-shell {
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 100vw;
-  height: 100vh;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
   height: 100dvh;
   background: #08120c;
   overflow: hidden;
   box-sizing: border-box;
+  padding: 0;
 }
 
-/* Standard Mobile Phone Container (matching Farm-to-Pharmacy reference: maxWidth: 440px, full mobile height) */
+/* Standard Mobile Phone Container (Farm-to-Pharmacy matching: maxWidth 440px, full height, anchored to top) */
 .smartphone-frame {
   width: 100%;
   max-width: 440px;
-  height: 100vh;
+  height: 100%;
   height: 100dvh;
-  max-height: 100vh;
-  max-height: 100dvh;
   background: var(--bg-primary);
   display: flex;
   flex-direction: column;
@@ -116,9 +115,10 @@ body {
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
   border-left: 1px solid rgba(255, 255, 255, 0.08);
   border-right: 1px solid rgba(255, 255, 255, 0.08);
+  margin: 0 auto;
 }
 
-/* On mobile screens, take full 100% viewport seamlessly */
+/* Mobile full-screen without side borders */
 @media (max-width: 480px) {
   .mobile-viewport-shell {
     padding: 0;
@@ -137,17 +137,24 @@ body {
 .dynamic-island-notch,
 .status-icons {
   display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
 }
 
-/* Mobile App Header */
+/* Mobile App Header - Clean, balanced, and fully in-frame */
 .app-header {
-  height: var(--header-height);
+  height: auto;
+  min-height: 52px;
   background: #0d281a;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 14px;
+  padding: 8px 12px;
+  padding-top: max(env(safe-area-inset-top, 0px), 8px);
+  gap: 8px;
   flex-shrink: 0;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
@@ -158,45 +165,59 @@ body {
   align-items: center;
   gap: 8px;
   text-decoration: none;
+  min-width: 0;
+  flex: 1;
 }
 
 .brand-logo {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   background: linear-gradient(135deg, #27ae60, #2ecc71);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 18px;
+  font-size: 17px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
 }
 
+.brand-info {
+  min-width: 0;
+  overflow: hidden;
+}
+
 .brand-info h1 {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.3px;
   line-height: 1.1;
   color: #ffffff;
+  margin: 0;
+  white-space: nowrap;
 }
 
 .brand-info .tagline {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   color: #8be4a9;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .btn-icon {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.12);
@@ -206,34 +227,42 @@ body {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.90rem;
+  flex-shrink: 0;
 }
 
 .lang-select-box {
   background: #091a11;
   color: #ffffff;
   border: 1px solid #2ecc71;
-  padding: 4px 6px;
+  padding: 2px 5px;
   border-radius: var(--radius-sm);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  height: 34px;
+  height: 32px;
   cursor: pointer;
   outline: none;
+  flex-shrink: 0;
+}
+
+/* Hide duplicate settings gear in header since Settings is already Tab 7 in bottom nav */
+#header-settings-btn {
+  display: none !important;
 }
 
 /* Secondary Sub-Bar */
 .sub-bar {
   background: #11301f;
   color: #cce7d5;
-  padding: 6px 14px;
+  padding: 5px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   border-bottom: 1px solid #1f4a32;
   flex-shrink: 0;
+  min-height: 36px;
 }
 
 .parcel-selector-group {
@@ -241,34 +270,38 @@ body {
   align-items: center;
   gap: 6px;
   flex: 1;
+  min-width: 0;
 }
 
 .select-clean {
   background: #091a11;
   color: #ffffff;
   border: 1px solid #2a5e40;
-  padding: 4px 8px;
+  padding: 2px 6px;
   border-radius: 6px;
-  font-size: 0.76rem;
-  height: 30px;
+  font-size: 0.74rem;
+  height: 26px;
   outline: none;
-  max-width: 175px;
+  flex: 1;
+  max-width: 135px;
+  min-width: 0;
 }
 
 .telemetry-badges {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .t-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 0.72rem;
+  gap: 3px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 0.68rem;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -473,9 +506,20 @@ body {
 }
 
 .toolbar-group {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
+  width: 100%;
+}
+
+.toolbar-group .btn {
+  width: 100%;
+  padding: 6px 4px;
+  font-size: 0.74rem;
+  min-height: 34px;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .btn {
@@ -782,7 +826,8 @@ body {
 
 /* Fixed Bottom Mobile Navigation Bar - Refined & Minimalist */
 .mobile-bottom-nav {
-  height: var(--bottom-nav-height);
+  height: auto;
+  min-height: var(--bottom-nav-height);
   background: var(--bg-card);
   border-top: 1px solid var(--border-color);
   display: flex;
@@ -790,13 +835,15 @@ body {
   justify-content: space-around;
   flex-shrink: 0;
   z-index: 100;
-  padding: 0 4px;
+  padding: 4px 2px;
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 4px);
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
   backdrop-filter: blur(12px);
 }
 
 .mobile-nav-item {
   flex: 1;
+  min-width: 0;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -805,7 +852,7 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 3px 1px;
+  padding: 2px 1px;
   gap: 2px;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
