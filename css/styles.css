@@ -67,90 +67,74 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #08120c;
+}
+
 body {
   font-family: var(--font-main);
   background: #08120c;
   color: var(--text-primary);
   line-height: 1.45;
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
-/* 9:16 Mobile Outer Shell */
+/* Mobile Viewport Shell (Full-height centering container like Farm-to-Pharmacy) */
 .mobile-viewport-shell {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100vw;
   height: 100vh;
-  padding: 10px;
+  height: 100dvh;
+  background: #08120c;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-/* Fixed 9:16 Smartphone Container */
+/* Standard Mobile Phone Container (matching Farm-to-Pharmacy reference: maxWidth: 440px, full mobile height) */
 .smartphone-frame {
   width: 100%;
-  max-width: 432px;
-  aspect-ratio: 9 / 16;
-  max-height: calc(100vh - 20px);
+  max-width: 440px;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100vh;
+  max-height: 100dvh;
   background: var(--bg-primary);
-  border-radius: 40px;
-  box-shadow: 
-    0 24px 64px rgba(0, 0, 0, 0.75),
-    0 0 0 10px #1a2c20,
-    0 0 0 12px #2e4735;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.7);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-@media (max-width: 480px), (max-height: 700px) {
+/* On mobile screens, take full 100% viewport seamlessly */
+@media (max-width: 480px) {
   .mobile-viewport-shell {
     padding: 0;
-    height: 100vh;
   }
   .smartphone-frame {
-    max-width: 100vw;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
+    max-width: 100%;
+    border-left: none;
+    border-right: none;
     box-shadow: none;
-    aspect-ratio: auto;
   }
 }
 
-/* Mobile Status Bar */
-.mobile-status-bar {
-  height: 32px;
-  background: #0a2014;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 18px;
-  font-size: 0.76rem;
-  font-weight: 700;
-  flex-shrink: 0;
-  user-select: none;
-  z-index: 110;
-}
-
-.dynamic-island-notch {
-  width: 84px;
-  height: 14px;
-  background: #000000;
-  border-radius: 10px;
-}
-
+/* Hide fake status bar with dynamic island notch to match Farm-to-Pharmacy native layout */
+.mobile-status-bar,
+.dynamic-island-notch,
 .status-icons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
+  display: none !important;
 }
 
 /* Mobile App Header */
