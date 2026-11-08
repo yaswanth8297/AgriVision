@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AgriVision – Mobile Farm Planner & IoT</title>
-  
-  <meta name="description" content="Constraint-aware 2D/3D farm planning, agronomic AI, and closed-loop ESP32 IoT irrigation platform in fixed 9:16 mobile ratio">
+
+  <meta name="description"
+    content="Constraint-aware 2D/3D farm planning, agronomic AI, and closed-loop ESP32 IoT irrigation platform in fixed 9:16 mobile ratio">
   <meta name="theme-color" content="#0d281a">
-  
+
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="css/styles.css">
 
@@ -15,12 +17,13 @@
   <script src="libs/three.min.js"></script>
   <script src="libs/OrbitControls.js"></script>
 </head>
+
 <body>
 
-  <!-- 9:16 Smartphone Frame Enclosure -->
+  <!-- 9:16 Smartphone aspect ratio Frame Enclosure -->
   <div class="mobile-viewport-shell">
     <div class="smartphone-frame">
-      
+
       <!-- Top Mobile Phone Status Bar -->
       <div class="mobile-status-bar">
         <span id="mobile-live-clock">19:45</span>
@@ -90,7 +93,7 @@
 
         <!-- ==================== MODULE 1: FARM DESIGNER (2D / 3D) ==================== -->
         <section id="tab-planner" class="tab-pane active">
-          
+
           <!-- Mobile Segmented View Selector -->
           <div class="view-segment-control">
             <button id="seg-btn-2d" class="view-segment-btn active" onclick="switchDesignerMode('2d')">
@@ -127,7 +130,7 @@
             <button class="btn btn-primary" style="width: 100%;" onclick="autoGenerateBlueprint()">
               <span>✨</span> <span data-i18n="generateBlueprint">Auto-Generate Blueprint</span>
             </button>
-            
+
             <div class="toolbar-group" style="justify-content: space-between;">
               <button class="btn btn-secondary btn-sm" onclick="addNewEntity('crop')">
                 <span data-i18n="addCropBed">+ Crop</span>
@@ -154,7 +157,7 @@
               <span>📊</span> Land Utilization
             </div>
             <div id="utilization-bar" class="land-utilization-bar"></div>
-            
+
             <div class="legend-grid">
               <div class="legend-item">
                 <div class="legend-swatch" style="background: #2e7d32;"></div>
@@ -174,8 +177,10 @@
               </div>
             </div>
 
-            <div style="font-size: 0.8rem; line-height: 1.6; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
-              <div>Area: <strong id="stat-total-area">8000 m² (1.98 Ac)</strong> | Perimeter: <strong id="stat-perimeter">360 m</strong></div>
+            <div
+              style="font-size: 0.8rem; line-height: 1.6; margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+              <div>Area: <strong id="stat-total-area">8000 m² (1.98 Ac)</strong> | Perimeter: <strong
+                  id="stat-perimeter">360 m</strong></div>
               <div>Road Buffer: <strong style="color: #27ae60;">3m 100% Reserved</strong></div>
             </div>
           </div>
@@ -190,7 +195,8 @@
             </div>
             <div class="form-group" style="margin-bottom: 10px;">
               <label class="form-label">Investment Budget (₹):</label>
-              <input type="number" id="opt-custom-budget" class="form-control" value="200000" step="10000" oninput="updateOptimizerUI()">
+              <input type="number" id="opt-custom-budget" class="form-control" value="200000" step="10000"
+                oninput="updateOptimizerUI()">
             </div>
           </div>
 
@@ -235,7 +241,8 @@
               </div>
 
               <div class="form-group">
-                <label class="form-label"><span data-i18n="phLabel">Soil pH:</span> <strong id="adv-ph-val" style="color: var(--primary);">6.8</strong></label>
+                <label class="form-label"><span data-i18n="phLabel">Soil pH:</span> <strong id="adv-ph-val"
+                    style="color: var(--primary);">6.8</strong></label>
                 <input type="range" id="adv-ph" min="5.0" max="8.5" step="0.1" value="6.8" oninput="updateAdvisorUI()">
               </div>
             </div>
@@ -243,71 +250,100 @@
 
           <div id="crop-recommendation-results">
             <!-- Subtab Navigation -->
-            <div style="display: flex; gap: 8px; margin-bottom: 14px; background: var(--bg-card); padding: 4px; border-radius: 10px; border: 1px solid var(--border-color);">
-              <button id="adv-subtab-crops" onclick="switchAdvisorSubTab('crops')" 
+            <div
+              style="display: flex; gap: 8px; margin-bottom: 14px; background: var(--bg-card); padding: 4px; border-radius: 10px; border: 1px solid var(--border-color);">
+              <button id="adv-subtab-crops" onclick="switchAdvisorSubTab('crops')"
                 style="flex: 1; padding: 10px 12px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; background: var(--primary); color: #ffffff;">
                 🌾 Recommended Crops
               </button>
-              <button id="adv-subtab-ferts" onclick="switchAdvisorSubTab('fertilizers')" 
+              <button id="adv-subtab-ferts" onclick="switchAdvisorSubTab('fertilizers')"
                 style="flex: 1; padding: 10px 12px; border: none; border-radius: 8px; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--text-secondary);">
                 🧪 Real-Life Fertilizers
               </button>
             </div>
 
             <!-- Crop 1: Guntur Hope Chili -->
-            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div class="card"
+              style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
               <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
-                <img src="images/crops/chili.jpg" alt="Guntur Hope Chili" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                <img src="images/crops/chili.jpg" alt="Guntur Hope Chili"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div
+                  style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">95%</span>
                   <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
                 </div>
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
-                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Guntur Hope Chili (Mirapa)</h4>
-                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 150–180 Days &nbsp;|&nbsp; ⚖️ 22–28 Quintals/Acre</div>
+                <div
+                  style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4
+                    style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">
+                    Guntur Hope Chili (Mirapa)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 150–180 Days
+                    &nbsp;|&nbsp; ⚖️ 22–28 Quintals/Acre</div>
                 </div>
               </div>
               <div style="padding: 14px 16px;">
-                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
-                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                <div
+                  style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪
+                    Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
                   <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/vermicompost.jpg" alt="Organic FYM / Compost" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Organic FYM / Compost"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:40:30</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            30:40:30</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Organic FYM / Compost</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">4 tons FYM + 200kg Neem Cake</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Organic FYM / Compost</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">4 tons FYM +
+                          200kg Neem Cake</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Jeevamrutham Liquid" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Jeevamrutham Liquid"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 40:0:20</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            40:0:20</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Jeevamrutham Liquid</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Jeevamrutham 200L foliar drench</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Jeevamrutham Liquid</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Jeevamrutham
+                          200L foliar drench</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/npk_granules.jpg" alt="NPK 19:19:19 Complex" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="NPK 19:19:19 Complex"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:20:30</span>
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield
+                            Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            30:20:30</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 NPK 19:19:19 Complex</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Waste Decomposer + 19:19:19 micro-spray</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          NPK 19:19:19 Complex</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Waste Decomposer
+                          + 19:19:19 micro-spray</div>
                       </div>
                     </div>
                   </div>
@@ -316,59 +352,87 @@
             </div>
 
             <!-- Crop 2: Taiwan Pink Guava -->
-            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div class="card"
+              style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
               <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
-                <img src="images/crops/guava.jpg" alt="Taiwan Pink Guava" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                <img src="images/crops/guava.jpg" alt="Taiwan Pink Guava"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div
+                  style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">92%</span>
                   <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
                 </div>
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
-                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Taiwan Pink Guava (High-Density)</h4>
-                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ Perennial (First harvest at 18 months) &nbsp;|&nbsp; ⚖️ 12–15 Tons/Acre</div>
+                <div
+                  style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4
+                    style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">
+                    Taiwan Pink Guava (High-Density)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ Perennial
+                    (First harvest at 18 months) &nbsp;|&nbsp; ⚖️ 12–15 Tons/Acre</div>
                 </div>
               </div>
               <div style="padding: 14px 16px;">
-                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
-                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                <div
+                  style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪
+                    Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
                   <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/vermicompost.jpg" alt="Vermicompost + Trichoderma" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Vermicompost + Trichoderma"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 25:35:25</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            25:35:25</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Vermicompost + Trichoderma</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">5 tons Vermicompost + 500g Trichoderma</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Vermicompost + Trichoderma</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">5 tons
+                          Vermicompost + 500g Trichoderma</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Panchagavya / Bio-Wash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Panchagavya / Bio-Wash"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:15:20</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            30:15:20</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Panchagavya / Bio-Wash</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Panchagavya 3% foliar spray</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Panchagavya / Bio-Wash</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Panchagavya 3%
+                          foliar spray</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/npk_granules.jpg" alt="Sulphate of Potash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="Sulphate of Potash"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:25:40</span>
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield
+                            Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            20:25:40</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Sulphate of Potash (KMB)</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Potash mobilizing bacteria (KMB)</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Sulphate of Potash (KMB)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Potash
+                          mobilizing bacteria (KMB)</div>
                       </div>
                     </div>
                   </div>
@@ -377,59 +441,87 @@
             </div>
 
             <!-- Crop 3: Finger Millet (Ragi) -->
-            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div class="card"
+              style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
               <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
-                <img src="images/crops/millet.jpg" alt="Finger Millet (Ragi)" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                <img src="images/crops/millet.jpg" alt="Finger Millet (Ragi)"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div
+                  style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">88%</span>
                   <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
                 </div>
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
-                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Finger Millet (Ragi / Chodi)</h4>
-                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 100–115 Days &nbsp;|&nbsp; ⚖️ 14–18 Quintals/Acre</div>
+                <div
+                  style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4
+                    style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">
+                    Finger Millet (Ragi / Chodi)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 100–115 Days
+                    &nbsp;|&nbsp; ⚖️ 14–18 Quintals/Acre</div>
                 </div>
               </div>
               <div style="padding: 14px 16px;">
-                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
-                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                <div
+                  style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪
+                    Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
                   <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/vermicompost.jpg" alt="Enriched Compost" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Enriched Compost"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:20:15</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            20:20:15</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Enriched Compost</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">2.5 tons compost + Azospirillum seed treatment</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Enriched Compost</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">2.5 tons compost
+                          + Azospirillum seed treatment</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/neem_cake.jpg" alt="Neem Kernel Extract" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/neem_cake.jpg" alt="Neem Kernel Extract"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:0:0</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            20:0:0</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Neem Kernel Extract (NSKE)</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Neem seed kernel extract (NSKE 5%)</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Neem Kernel Extract (NSKE)</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Neem seed kernel
+                          extract (NSKE 5%)</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/vermicompost.jpg" alt="Organic Wood Ash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Organic Wood Ash"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 10:10:15</span>
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield
+                            Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            10:10:15</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Organic Wood Ash & Potash</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Wood ash 50kg/acre for organic potassium</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Organic Wood Ash & Potash</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Wood ash
+                          50kg/acre for organic potassium</div>
                       </div>
                     </div>
                   </div>
@@ -438,59 +530,87 @@
             </div>
 
             <!-- Crop 4: Banganapalli Mango -->
-            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div class="card"
+              style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
               <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
-                <img src="images/crops/mango.jpg" alt="Banganapalli Mango" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                <img src="images/crops/mango.jpg" alt="Banganapalli Mango"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div
+                  style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">85%</span>
                   <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
                 </div>
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
-                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">Banganapalli Mango Orchard</h4>
-                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ Perennial (Year 3 onward) &nbsp;|&nbsp; ⚖️ 6–9 Tons/Acre</div>
+                <div
+                  style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4
+                    style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">
+                    Banganapalli Mango Orchard</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ Perennial (Year
+                    3 onward) &nbsp;|&nbsp; ⚖️ 6–9 Tons/Acre</div>
                 </div>
               </div>
               <div style="padding: 14px 16px;">
-                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
-                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                <div
+                  style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪
+                    Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
                   <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/vermicompost.jpg" alt="Manure + Bone Meal Pit Blend" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/vermicompost.jpg" alt="Manure + Bone Meal Pit Blend"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 40:50:40</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            40:50:40</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Manure + Bone Meal Pit Blend</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">10kg FYM per pit + 1kg Bone meal</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Manure + Bone Meal Pit Blend</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">10kg FYM per pit
+                          + 1kg Bone meal</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Zinc-Borax & Jeevamrutham" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Zinc-Borax & Jeevamrutham"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:20:30</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            30:20:30</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Zinc-Borax & Jeevamrutham</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Zinc Sulphate 0.5% + Borax 0.2% spray</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Zinc-Borax & Jeevamrutham</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Zinc Sulphate
+                          0.5% + Borax 0.2% spray</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/npk_granules.jpg" alt="Fruit Set Potash" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="Fruit Set Potash"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 20:40:60</span>
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield
+                            Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            20:40:60</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Fruit Set Potash & Paclobutrazol</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Cultar paclobutrazol (if recommended by KVK)</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Fruit Set Potash & Paclobutrazol</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Cultar
+                          paclobutrazol (if recommended by KVK)</div>
                       </div>
                     </div>
                   </div>
@@ -499,59 +619,87 @@
             </div>
 
             <!-- Crop 5: BPT 5204 Paddy -->
-            <div class="card" style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+            <div class="card"
+              style="border: 1px solid var(--border-color); border-left: 6px solid var(--primary); margin-bottom: 20px; overflow: hidden; padding: 0; border-radius: 12px; background: var(--bg-card); box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
               <div style="position: relative; width: 100%; height: 185px; background: #0c1a12; overflow: hidden;">
-                <img src="images/crops/paddy.jpg" alt="BPT 5204 Paddy" style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
-                <div style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
+                <img src="images/crops/paddy.jpg" alt="BPT 5204 Paddy"
+                  style="width: 100%; height: 100%; object-fit: cover; display: block;" loading="lazy">
+                <div
+                  style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(46, 204, 113, 0.6); display: flex; align-items: center; gap: 6px;">
                   <span style="font-size: 1.05rem; font-weight: 900; color: #2ecc71;">82%</span>
                   <span style="font-size: 0.72rem; color: #ffffff; font-weight: 700;">Match</span>
                 </div>
-                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
-                  <h4 style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">BPT 5204 Paddy (Samba Mahsuri)</h4>
-                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 140–150 Days &nbsp;|&nbsp; ⚖️ 28–34 Bags/Acre</div>
+                <div
+                  style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%); padding: 16px 14px 8px;">
+                  <h4
+                    style="font-size: 1.2rem; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.85);">
+                    BPT 5204 Paddy (Samba Mahsuri)</h4>
+                  <div style="font-size: 0.78rem; color: #d0f0c0; margin-top: 3px; font-weight: 600;">⏱️ 140–150 Days
+                    &nbsp;|&nbsp; ⚖️ 28–34 Bags/Acre</div>
                 </div>
               </div>
               <div style="padding: 14px 16px;">
-                <div style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
-                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪 Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
+                <div
+                  style="background: var(--bg-primary); padding: 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                  <h5 style="font-size: 0.88rem; font-weight: 800; color: var(--text-primary); margin: 0 0 10px;">🧪
+                    Stage-Wise Fertilizer Schedule (ICAR Standards):</h5>
                   <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/neem_cake.jpg" alt="Green Manure + Neem Cake" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/neem_cake.jpg" alt="Green Manure + Neem Cake"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">1. Basal Application:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:40:25</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            30:40:25</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Green Manure + Neem Cake</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Green manure (Dhaincha/Sunn hemp incorporated)</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Green Manure + Neem Cake</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Green manure
+                          (Dhaincha/Sunn hemp incorporated)</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Azolla Bio-Fertilizer" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/jeevamrutham.jpg" alt="Azolla Bio-Fertilizer"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
                           <strong style="font-size: 0.82rem; color: var(--text-primary);">2. Vegetative Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 40:0:15</span>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            40:0:15</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Azolla Bio-Fertilizer & Jeevamrit</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Azolla bio-fertilizer layer</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Azolla Bio-Fertilizer & Jeevamrit</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Azolla
+                          bio-fertilizer layer</div>
                       </div>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
-                      <div style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
-                        <img src="images/fertilizers/npk_granules.jpg" alt="Potassium Nitrate" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
+                    <div
+                      style="display: flex; gap: 10px; align-items: center; background: var(--bg-card); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                      <div
+                        style="width: 52px; height: 52px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: #16241b; border: 1px solid var(--border-color);">
+                        <img src="images/fertilizers/npk_granules.jpg" alt="Potassium Nitrate"
+                          style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                       </div>
                       <div style="flex: 1; min-width: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield Phase:</strong>
-                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK 30:0:20</span>
+                          <strong style="font-size: 0.82rem; color: var(--text-primary);">3. Flowering & Yield
+                            Phase:</strong>
+                          <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700;">NPK
+                            30:0:20</span>
                         </div>
-                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿 Potassium Nitrate 13-0-45</div>
-                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Potassium Nitrate 13-0-45 foliar spray</div>
+                        <div style="color: var(--primary); font-size: 0.76rem; font-weight: 700; margin-top: 2px;">🌿
+                          Potassium Nitrate 13-0-45</div>
+                        <div style="color: var(--text-secondary); font-size: 0.73rem; margin-top: 1px;">Potassium
+                          Nitrate 13-0-45 foliar spray</div>
                       </div>
                     </div>
                   </div>
@@ -568,9 +716,10 @@
             <div class="card-title">
               <span>🔬</span> <span data-i18n="tabPathology">Disease Scanner</span>
             </div>
-            
+
             <div class="dropzone-box" onclick="document.getElementById('leaf-file-input').click()">
-              <input type="file" id="leaf-file-input" accept="image/*" style="display: none;" onchange="handleFileUpload(this)">
+              <input type="file" id="leaf-file-input" accept="image/*" style="display: none;"
+                onchange="handleFileUpload(this)">
               <div id="dropzone-placeholder">
                 <span style="font-size: 2.4rem;">📸</span>
                 <div style="font-weight: 700; font-size: 0.88rem; margin-top: 4px;">Tap to Take Photo or Upload</div>
@@ -596,11 +745,13 @@
           <div class="card">
             <div id="pathology-loader" style="display: none; text-align: center; padding: 24px;">
               <div style="font-size: 1.8rem; animation: pulse 1s infinite;">🧠</div>
-              <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-top: 6px;">MobileNetV2 Neural Diagnostic...</div>
+              <div style="font-weight: 700; font-size: 0.85rem; color: var(--primary); margin-top: 6px;">MobileNetV2
+                Neural Diagnostic...</div>
             </div>
 
             <div id="pathology-result-card">
-              <div style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
+              <div
+                style="display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--border-color); padding-bottom: 8px;">
                 <h3 id="diag-disease-name" style="font-size: 1.05rem; font-weight: 800; color: var(--text-primary);">
                   🍅 Tomato Early Blight
                 </h3>
@@ -623,7 +774,8 @@
                 <p id="diag-chem-remedy" style="margin-top: 2px;">Mancozeb 75 WP @ 2.5g/L foliar spray.</p>
               </div>
 
-              <div style="margin-top: 10px; padding: 8px; background: var(--warning-light); border-radius: 6px; font-size: 0.72rem; color: #784212;">
+              <div
+                style="margin-top: 10px; padding: 8px; background: var(--warning-light); border-radius: 6px; font-size: 0.72rem; color: #784212;">
                 ⚠️ <strong>Advisory Disclaimer:</strong> Inspect crop in person before applying chemical fungicides.
               </div>
             </div>
@@ -633,7 +785,7 @@
         <!-- ==================== MODULE 5: SMART WATER & ELECTRICITY (ESP32) ==================== -->
         <section id="tab-iot" class="tab-pane">
           <div class="iot-dashboard-grid">
-            
+
             <div class="pump-switch-card">
               <div>
                 <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px; color: #a3e4d7;">
@@ -647,7 +799,8 @@
                 </div>
               </div>
 
-              <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+              <div
+                style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
                 <div id="iot-pump-badge" class="pump-status-badge on">
                   ACTIVE
                 </div>
@@ -670,12 +823,14 @@
               </div>
 
               <div style="margin-top: 10px;">
-                <label id="iot-sim-slider-label" style="font-size: 0.75rem; font-weight: 600;">Simulate Moisture:</label>
-                <input type="range" id="iot-moisture-slider" min="15" max="85" value="28" 
-                       oninput="updateTelemetry(parseFloat(this.value))" style="width: 100%; margin-top: 4px;">
+                <label id="iot-sim-slider-label" style="font-size: 0.75rem; font-weight: 600;">Simulate
+                  Moisture:</label>
+                <input type="range" id="iot-moisture-slider" min="15" max="85" value="28"
+                  oninput="updateTelemetry(parseFloat(this.value))" style="width: 100%; margin-top: 4px;">
               </div>
 
-              <button id="iot-run-sim-btn" class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;" onclick="runMoistureSimulation()">
+              <button id="iot-run-sim-btn" class="btn btn-primary btn-sm" style="width: 100%; margin-top: 8px;"
+                onclick="runMoistureSimulation()">
                 ▶️ Test Full Irrigation Cycle
               </button>
             </div>
@@ -715,12 +870,15 @@
 
             <div id="weather-alert-card" class="advisory-disclaimer" style="margin-bottom: 14px;"></div>
 
-            <h4 id="weather-forecast-head" style="font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px;">
+            <h4 id="weather-forecast-head"
+              style="font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 8px;">
               5-Day Forecast:
             </h4>
-            <div id="weather-forecast-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;"></div>
+            <div id="weather-forecast-grid"
+              style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 16px;"></div>
 
-            <h4 id="weather-roadmap-head" style="font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px;">
+            <h4 id="weather-roadmap-head"
+              style="font-size: 0.85rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px;">
               Crop Task Roadmap:
             </h4>
             <div id="seasonal-roadmap-timeline"></div>
@@ -731,13 +889,15 @@
         <section id="tab-settings" class="tab-pane">
           <div id="profile-content-container">
             <div style="display: flex; flex-direction: column; gap: 14px;">
-              
+
               <!-- Settings Top Header Banner -->
               <div style="display: flex; align-items: center; justify-content: space-between; padding: 4px 6px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
+                <h3
+                  style="font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin: 0; display: flex; align-items: center; gap: 8px;">
                   <span>⚙️</span> <span id="settings-main-heading">Settings & Preferences</span>
                 </h3>
-                <span style="font-size: 0.72rem; background: var(--bg-card); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 12px; font-weight: 700; color: var(--primary);">
+                <span
+                  style="font-size: 0.72rem; background: var(--bg-card); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 12px; font-weight: 700; color: var(--primary);">
                   🟢 System v1.3.0
                 </span>
               </div>
@@ -748,11 +908,14 @@
                   <div style="display: flex; align-items: center; gap: 10px;">
                     <span id="settings-avatar-icon" style="font-size: 2rem;">👨‍🌾</span>
                     <div>
-                      <div id="settings-farmer-name" style="font-size: 1rem; font-weight: 800; color: var(--text-primary);">Apparao Nimmana</div>
-                      <div id="settings-farmer-email" style="font-size: 0.75rem; color: var(--text-muted);">apparao@agrivision.in</div>
+                      <div id="settings-farmer-name"
+                        style="font-size: 1rem; font-weight: 800; color: var(--text-primary);">Apparao Nimmana</div>
+                      <div id="settings-farmer-email" style="font-size: 0.75rem; color: var(--text-muted);">
+                        apparao@agrivision.in</div>
                     </div>
                   </div>
-                  <span id="settings-farmer-role" style="background: rgba(46, 204, 113, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; text-transform: uppercase;">
+                  <span id="settings-farmer-role"
+                    style="background: rgba(46, 204, 113, 0.15); color: var(--primary); font-size: 0.72rem; font-weight: 800; padding: 4px 10px; border-radius: 12px; text-transform: uppercase;">
                     FARMER
                   </span>
                 </div>
@@ -775,7 +938,8 @@
 
                 <div class="form-group" style="margin-bottom: 10px;">
                   <label class="form-label">Active App Language:</label>
-                  <select id="settings-lang-select" class="form-control" onchange="setLanguage(this.value); if(window.renderProfileUI) renderProfileUI();">
+                  <select id="settings-lang-select" class="form-control"
+                    onchange="setLanguage(this.value); if(window.renderProfileUI) renderProfileUI();">
                     <option value="en" selected>English (Default)</option>
                     <option value="te">తెలుగు (Telugu)</option>
                     <option value="hi">हिन्दी (Hindi)</option>
@@ -785,10 +949,12 @@
                 <div class="form-group" style="margin-bottom: 10px;">
                   <label class="form-label">App Color Theme:</label>
                   <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="if(STATE.theme !== 'light') toggleTheme();">
+                    <button class="btn btn-secondary btn-sm" style="flex: 1;"
+                      onclick="if(STATE.theme !== 'light') toggleTheme();">
                       ☀️ Light Theme
                     </button>
-                    <button class="btn btn-secondary btn-sm" style="flex: 1;" onclick="if(STATE.theme !== 'dark') toggleTheme();">
+                    <button class="btn btn-secondary btn-sm" style="flex: 1;"
+                      onclick="if(STATE.theme !== 'dark') toggleTheme();">
                       🌙 Dark / Field Mode
                     </button>
                   </div>
@@ -809,7 +975,7 @@
                 <div class="card-title">
                   <span>🚜</span> Farm Land & Irrigation Settings
                 </div>
-                
+
                 <div class="form-group" style="margin-bottom: 10px;">
                   <label class="form-label">Default Land Measurement Unit:</label>
                   <select id="prof-units" class="form-control">
@@ -849,13 +1015,15 @@
                 <div class="form-group" style="margin-bottom: 10px;">
                   <label class="form-label">Auto-Start Pump Trigger (Soil Moisture &lt; %):</label>
                   <input type="number" id="settings-pump-on-thresh" class="form-control" value="30" min="15" max="50">
-                  <small style="color: var(--text-muted); font-size: 0.72rem;">Turns irrigation pump ON when soil moisture falls below this limit.</small>
+                  <small style="color: var(--text-muted); font-size: 0.72rem;">Turns irrigation pump ON when soil
+                    moisture falls below this limit.</small>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Auto-Stop Pump Trigger (Soil Moisture &gt;= %):</label>
                   <input type="number" id="settings-pump-off-thresh" class="form-control" value="65" min="50" max="90">
-                  <small style="color: var(--text-muted); font-size: 0.72rem;">Shuts pump OFF to prevent waterlogging and root rot.</small>
+                  <small style="color: var(--text-muted); font-size: 0.72rem;">Shuts pump OFF to prevent waterlogging
+                    and root rot.</small>
                 </div>
               </div>
 
@@ -963,7 +1131,8 @@
               <span style="font-size: 1.3rem;">🌱</span>
               <span style="font-weight: 800; font-size: 1rem;">AgriVision Auth</span>
             </div>
-            <button class="btn-icon" style="width: 28px; height: 28px; font-size: 0.8rem;" onclick="closeAuthModal()">✕</button>
+            <button class="btn-icon" style="width: 28px; height: 28px; font-size: 0.8rem;"
+              onclick="closeAuthModal()">✕</button>
           </div>
 
           <!-- Segmented Tabs: Sign In / Create Account -->
@@ -977,7 +1146,7 @@
           </div>
 
           <div class="auth-body-content">
-            
+
             <!-- Quick Demo Accounts Autofill Shelf -->
             <div class="demo-accounts-shelf">
               <div style="font-size: 0.72rem; font-weight: 800; color: var(--primary); text-transform: uppercase;">
@@ -1174,4 +1343,5 @@
   </script>
 
 </body>
+
 </html>
